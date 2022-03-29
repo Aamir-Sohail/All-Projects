@@ -1,0 +1,95 @@
+<?php include('../includes/header.php'); ?>
+
+<div class="col-lg-12 col-12 layout-top-spacing">
+
+    <div class="row layout-top-spacing" id="cancel-row">
+<div id="loader_screen"></div>
+        <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
+            <div class="widget-content widget-content-area br-6">
+                <div id="zero-config_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
+                    <div class="dt--top-section">
+                        <div class="row">
+                            <div class="col-12 col-sm-6 d-flex justify-content-sm-start justify-content-center">
+                                <div class="dataTables_length" id="zero-config_length"><label> <h4>Attendance of : <?php echo date("d-m-Y"); ?></h4> : </label></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="zero-config" class="table table-striped dataTable" style="width: 100%;" role="grid" aria-describedby="zero-config_info">
+                            <thead>
+                                <tr role="row">
+                                    <th class="sorting_asc" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 132px;">SNo</th>
+                                    <th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 18px;">Name</th>
+                                    <th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 96px;">CNIC</th>
+                                    <th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 100px;">Attendance Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <form id="techerAttendenceform">
+                                <?php
+                                $result=$datafetch->teacher_fetch($SchoolCode);
+                                foreach ($result as$row) {
+                                    ?>
+                                <tr role="row">
+                                 <input type="hidden" name="teacherId[]" value="<?php echo $row['AutoID']?>">
+
+                                    <td><?php echo $row['AutoID']?></td>
+                                    <td><?php echo $row['Teacher_Name']?></td>
+                                    <td><?php echo $row['CNIC']?></td>
+                                    <td>
+                                        <select class="form-control form-control-sm" name="teacherAttendence[]">
+                                            <option value="0">Present</option>
+                                            <option value="1">Leave</option>
+                                            <option value="2">Absent</option>
+                                        </select>
+                                    </td>
+                                </tr> 
+                           <?php
+                                }?>  
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th rowspan="1" colspan="1">SNo</th>
+                                    <th rowspan="1" colspan="1">Name</th>
+                                    <th rowspan="1" colspan="1">CNIC</th>
+                                    <th rowspan="1" colspan="1">Attendance Status</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div style="float: right;">
+                        <input type="button" onclick="sendTeacherattendence(event,<?php echo $row['AutoID']?>)" name="teacherattenencebutton" value="Add Attendence" class="mt-4 btn btn-primary">
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<?php include('../includes/footer.php'); ?>
+
+<script>
+    function sendTeacherattendence (event,id) {
+        event.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "../includes/process.php",
+            data: "MODE=addAttendence&" +$('#techerAttendenceform').serialize(),
+            beforeSend : function(){
+            $("#loader_screen").html(`<div id="load_screen"><div class="loader"><div class="loader-content"><div class="spinner-grow align-self-center"></div></div></div></div`);
+            },
+            success: function(data) {
+                $("#loader_screen").html("");
+                if(data === '1'){
+                    $('#techerAttendenceform').trigger("reset");
+                    alert("Attendence Added SuccessFully");
+                }else{
+                    alert("Attendece Already Marked");
+                    console.log(data);
+                }
+            }
+        });
+    };
+</script>
